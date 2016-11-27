@@ -1,0 +1,68 @@
+---
+jobs:
+  - name: "export-release"
+    serial: true
+    plan:
+      - aggregate:
+          - get: "release"
+            trigger: true
+          - get: "stemcell"
+            trigger: true
+      - aggregate:
+          - get: "bosh-release-compiler"
+          - get: "bosh-deployment"
+          - get: "downloads"
+      - do:
+          - task: "create-bosh-director"
+            file: "bosh-release-compiler/tasks/create-bosh-director/config.yml"
+            params:
+              iaas: ((bosh_director_iaas))
+              iaas_config: ((bosh_director_iaas_config))
+          - task: "export-release"
+            file: "bosh-release-compiler/tasks/export-release/config.yml"
+            params:
+              download_prefix: "((compiled_prefix))"
+          - put: "downloads"
+            params:
+              rebase: true
+              repository: "downloads"
+          - put: "compiled-release"
+            params:
+              file: "compiled-release/*.tgz"
+        ensure:
+          task: "destroy-bosh-director"
+          file: "bosh-release-compiler/tasks/destroy-bosh-director/config.yml"
+resources:
+  - name: "release"
+    type: "s3"
+    source:
+      bucket: ((release_bucket))
+      regexp: ((release_regexp))
+      access_key_id: ((release_access_key_id))
+      secret_access_key: ((release_secret_access_key))
+  - name: "stemcell"
+    type: "bosh-io-stemcell"
+    source:
+      name: "bosh-((bosh_director_iaas))-((bosh_director_hypervisor))-((os_name))-go_agent"
+  - name: "compiled-release"
+    type: "s3"
+    source:
+      bucket: ((compiled_bucket))
+      regexp: ((compiled_regexp))
+      access_key_id: ((compiled_access_key_id))
+      secret_access_key: ((compiled_secret_access_key))
+  - name: "downloads"
+    type: "git"
+    source:
+      uri: "((downloads_repository_uri))"
+      branch: "((downloads_repository_branch))"
+      private_key: "((downloads_repository_private_key))"
+  - name: "bosh-release-compiler"
+    type: "git"
+    source:
+      uri: "https://github.com/dpb587/bosh-release-compiler.git"
+      branch: "master"
+  - name: "bosh-deployment"
+    type: "git"
+    source:
+      uri: "https://github.com/cloudfoundry/bosh-deployment.git"

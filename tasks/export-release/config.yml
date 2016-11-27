@@ -1,0 +1,21 @@
+---
+platform: "linux"
+image_resource:
+  type: "docker-image"
+  source:
+    repository: "dpb587/bosh-release-compiler"
+    tag: "main"
+inputs:
+  - name: "bosh-director"
+  - name: "bosh-release-compiler"
+  - name: "release"
+  - name: "stemcell"
+  - name: "downloads"
+outputs:
+  - name: "compiled-release"
+  - name: "downloads"
+    path: "downloads-output"
+run:
+  path: "bosh-release-compiler/tasks/export-release/execute.sh"
+params:
+  download_prefix: ~
