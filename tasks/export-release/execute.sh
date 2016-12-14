@@ -1,4 +1,4 @@
-#!/bin/sh -eu
+#!/bin/sh
 
 set -eu -o pipefail
 
@@ -44,7 +44,7 @@ bosh -n deploy deployment.yml
 bosh export-release "$release_name/$release_version" "$stemcell_os/$stemcell_version"
 
 fullname="$BOSH_DEPLOYMENT-compiled-1.$( date -u +%Y%m%d%H%M%S ).0.tgz"
-mv *.tgz ../compiled-release/$BOSH_DEPLOYMENT.tgz
+mv *.tgz ../compiled-release/$fullname
 
 jq -n \
   --arg version "$release_version" \
@@ -83,6 +83,4 @@ jq -n \
       ]
     }
   ' \
-  | ./bin/commit-download ../compiled-release/$BOSH_DEPLOYMENT.tgz ../downloads-output
-
-mv ../compiled-release/$BOSH_DEPLOYMENT.tgz ../compiled-release/$fullname
+  | ./bin/commit-download ../compiled-release/$fullname ../downloads-output
