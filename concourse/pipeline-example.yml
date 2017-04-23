@@ -1,0 +1,34 @@
+jobs:
+- name: compile-release
+  plan:
+  - aggregate:
+    - get: release-compiler
+    - get: release
+      trigger: true
+    - get: stemcell
+      trigger: true
+  - task: compile-release
+    file: release-compiler/concourse/execute-local-bosh.yml
+    privileged: true
+  # - put: compiled-release
+  #   params:
+  #     path: compiled-release/*.tgz
+resources:
+- name: release-compiler
+  type: git
+  source:
+    uri: https://github.com/dpb587/bosh-release-compiler.git
+    branch: main-bosh-docker
+- name: release
+  type: bosh-io-release
+  source:
+    repository: dpb587/openvpn-bosh-release
+- name: stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+# - name: compiled-release
+#   type: s3
+#   source:
+#     bucket: example-compiled-releases
+#     regexp: openvpn-[\\d\\.]+-on-ubuntu-trusty-stemcell-[\\d\\.]+-compiled-(\\d+\\.\\d+\\.\\d+).tgz

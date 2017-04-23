@@ -1,0 +1,19 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: bosh/main-bosh-docker
+inputs:
+- name: release-compiler
+- name: release
+- name: stemcell
+outputs:
+- name: compiled-release
+run:
+  path: release-compiler/execute.sh
+params:
+  BOSH_CA_CERT: ~
+  BOSH_CLIENT: ~
+  BOSH_CLIENT_SECRET: ~
+  BOSH_ENVIRONMENT: ~
