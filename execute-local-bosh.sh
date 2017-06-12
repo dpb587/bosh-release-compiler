@@ -15,4 +15,4 @@ bosh -n update-cloud-config \
       | sed "s/workers: .+/workers: $( grep -c ^processor /proc/cpuinfo )/"
   )
 
-"$DIR/execute-local-bosh.sh"
+"$DIR/execute.sh"
